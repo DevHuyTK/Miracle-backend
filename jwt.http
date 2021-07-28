@@ -1,0 +1,28 @@
+GET http://localhost:3000/post
+Authorization: Beaer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGM3MGJjNDRiOGU5ZTZiMWYwYTdmN2UiLCJlbWFpbCI6Ikh1eTEyM0BnbWFpbC5jb20iLCJwYXNzd29yZCI6IiQyYSQxMCRyRm8zcUJWR3Zoei9wdkFaWDRmcm5lcGMzZVZIQi9SL3ZWSDRELmMudkJNdXoxUXNQSllxNiIsImlhdCI6MTYyMzczMDQ3NCwiZXhwIjoxNjIzNzMwNTA0fQ._yXw2SqemCyEKIidjhZjZPmFNP8lNdHusfxYG1ndgvM
+
+###
+
+POST http://localhost:3000/user/login
+Content-Type: application/json
+
+{
+    "email": "Huy123@gmail.com",
+    "password": "123456"
+}
+
+###
+POST http://localhost:3000/user/refreshToken
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGM3MGJjNDRiOGU5ZTZiMWYwYTdmN2UiLCJlbWFpbCI6Ikh1eTEyM0BnbWFpbC5jb20iLCJwYXNzd29yZCI6IiQyYSQxMCRyRm8zcUJWR3Zoei9wdkFaWDRmcm5lcGMzZVZIQi9SL3ZWSDRELmMudkJNdXoxUXNQSllxNiIsImlhdCI6MTYyMzczMTg3NX0.fEt_wo5gxdX8xna3YVZfzi3XNoD4wrotnijyRB8fP6E"
+}
+
+###
+POST http://localhost:3000/user/logout
+Content-Type: application/json
+
+{
+   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGM3MGJjNDRiOGU5ZTZiMWYwYTdmN2UiLCJlbWFpbCI6Ikh1eTEyM0BnbWFpbC5jb20iLCJwYXNzd29yZCI6IiQyYSQxMCRyRm8zcUJWR3Zoei9wdkFaWDRmcm5lcGMzZVZIQi9SL3ZWSDRELmMudkJNdXoxUXNQSllxNiIsImlhdCI6MTYyMzczMTQzNn0.a8LDA0vTUK2hJXO_f5eetb-gyWPm9D7IpEzABj_HIEM"
+}
