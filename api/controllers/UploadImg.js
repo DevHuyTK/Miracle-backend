@@ -4,206 +4,213 @@ const moment = require("moment");
 
 //UPLOAD IMAGES INTO SERVER
 module.exports.uploadPhoto = async (req, res) => {
-	try {
-		const photos = req.files.photo;
-		const title = req.body.title;
-		res.json({
-			photos: photos,
-			title: title,
-		});
-		if(!title){
-			return res.json({
-				status: 0,
-				message: "Thiếu tiêu đề"
-			})
-		}
-		let resImages = [];
+  try {
+    const photos = req.files.photo;
+    const title = req.body.title;
+    if (!title) {
+      return res.json({
+        status: 0,
+        message: "Thiếu tiêu đề",
+      });
+    }
+    if (!photos) {
+      return res.json({
+        status: 0,
+        message: "Thiếu ảnh",
+      });
+    }
+    let resImages = [];
 
-		let photos_name = `_${Date.now()}_` + photos[i].name.replace(/\s/g, "");
-		for (let i = 0; i < photos.length; i++) {
-			let path = "./public/images/" + photo_name;
+    if (photos.length > 1) {
+      for (let i = 0; i < photos.length; i++) {
+        let photos_name = `${Date.now()}_` + photos[i].name.replace(/\s/g, "");
+        let path = "./public/images/" + photos_name;
 
-			photos[i].mv(path, (err) => {
-				if (err) {
-					return res.json(err);
-				}
-			});
-			resImages.push(photos_name);
-		}
-		
-		const postData = new Post({
-			title,
-			user_id: req.user._id.toString(),
-			photos: resImages,
-		});
+        photos[i].mv(path, (err) => {
+          if (err) {
+            return res.json(err);
+          }
+        });
+        resImages.push(photos_name);
+      }
+    } else {
+      let photo_name = `${Date.now()}_` + photos.name.replace(/\s/g, "");
+      let path = "./public/images/" + photo_name;
 
-		const result = await Post.findByIdAndUpdate(req.user._id, postData);
-		const returnedUser = { ...result._doc };
-		delete returnedUser.photos;
-		res.json({
-			status: 1,
-			message: "Tải ảnh thành công",
-			data: {
-				...returnedUser,
-				...postData,
-			},
-		});
-		// if (images.length > 1) {
-		// 	let photos_name =
-		// 		`_${Date.now()}_` + images[i].name.replace(/\s/g, "");
-		// 	for (let i = 0; i < images.length; i++) {
-		// 		let path = "./public/images/" + photo_name;
+      photos.mv(path, (err) => {
+        if (err) {
+          return res.json(err);
+        }
+      });
 
-		// 		images[i].mv(path, (err) => {
-		// 			if (err) {
-		// 				return res.json(err);
-		// 			}
-		// 		});
-		// 		resImages.push(photos_name);
-		// 	}
-		// 	const postData = {
-		// 		photos: resImages,
-		// 	};
+      resImages.push(photo_name);
+    }
 
-		// 	const result = await User.findByIdAndUpdate(req.user._id, postData);
-		// 	const returnedUser = { ...result._doc };
-		// 	delete returnedUser.password;
-		// 	delete returnedUser.photos;
-		// 	res.json({
-		// 		status: 1,
-		// 		message: "Tải ảnh thành công",
-		// 		data: {
-		// 			...returnedUser,
-		// 			...postData,
-		// 		},
-		// 	});
-		// } else {
-		// 	let photo_name = `${Date.now()}_` + images.name.replace(/\s/g, "");
-		// 	let path = "./public/images/" + photo_name;
+    const postData = new Post({
+      title,
+      user_id: req.user._id.toString(),
+      photos: resImages,
+      created_at: new Date(),
+    });
+    await postData.save();
 
-		// 	images.mv(path, (err) => {
-		// 		if (err) {
-		// 			return res.json(err);
-		// 		}
-		// 	});
-		// 	resImages.push(photo_name);
-		// 	const postData = {
-		// 		photos: resImages,
-		// 	};
-
-		// 	const result = await User.findByIdAndUpdate(req.user._id, postData);
-		// 	const returnedUser = { ...result._doc };
-		// 	delete returnedUser.password;
-		// 	delete returnedUser.photos;
-		// 	res.json({
-		// 		status: 1,
-		// 		message: "Tải ảnh thành công",
-		// 		data: {
-		// 			...returnedUser,
-		// 			...postData,
-		// 		},
-		// 	});
-		// }
-	} catch (err) {
-		res.json({
-			status: 0,
-			message: "Tải ảnh thất bại",
-		});
-	}
+    res.json({
+      status: 1,
+      message: "Đăng tải bài viết thành công",
+      data: {
+        ...postData._doc,
+      },
+    });
+  } catch (err) {
+    res.json({
+      status: 0,
+      message: "Tải ảnh thất bại",
+    });
+  }
 };
 
 //UPLOAD AVATAR
 module.exports.uploadAvatar = async (req, res) => {
-	try {
-		const images = req.files.avatar;
-		let avatar = `${Date.now()}_` + images.name.replace(/\s/g, "");
+  try {
+    const images = req.files.avatar;
+    let avatar = `${Date.now()}_` + images.name.replace(/\s/g, "");
 
-		let path = "./public/images/" + avatar;
-		var currentDate = moment().format("DD-MM-YYYY");
-		if (images) {
-			const postData = {
-				avatar: avatar,
-				create_at: Date.now(),
-			};
-			const result = await User.findByIdAndUpdate(
-				req.user._id,
-				postData,
-				{ new: true }
-			);
-			const returnedUser = { ...result._doc };
-			delete returnedUser.password;
-			res.json({
-				status: 1,
-				message: "Cập nhật ảnh đại diện thành công",
-				data: {
-					...returnedUser,
-					...postData,
-				},
-			});
-			images.mv(path, (err) => {
-				if (err) {
-					return res.json(err);
-				}
-			});
-		} else {
-			res.json({
-				status: 0,
-				message: "Cập nhật ảnh đại diện thất bại",
-			});
-		}
-	} catch (err) {
-		res.json({
-			status: 0,
-			message: "Cập nhật ảnh đại diện thất bại",
-		});
-	}
+    let path = "./public/images/" + avatar;
+    var currentDate = moment().format("DD-MM-YYYY");
+    if (images) {
+      const postData = {
+        avatar: avatar,
+        create_at: Date.now(),
+      };
+      const result = await User.findByIdAndUpdate(req.user._id, postData, {
+        new: true,
+      });
+      const returnedUser = { ...result._doc };
+      delete returnedUser.password;
+      res.json({
+        status: 1,
+        message: "Cập nhật ảnh đại diện thành công",
+        data: {
+          ...returnedUser,
+          ...postData,
+        },
+      });
+      images.mv(path, (err) => {
+        if (err) {
+          return res.json(err);
+        }
+      });
+    } else {
+      res.json({
+        status: 0,
+        message: "Cập nhật ảnh đại diện thất bại",
+      });
+    }
+  } catch (err) {
+    res.json({
+      status: 0,
+      message: "Cập nhật ảnh đại diện thất bại",
+    });
+  }
 };
+
+module.exports.getUserPhotos = (req, res) => {
+  const userId = req.user._id;
+  try {
+    Post.find({ user_id: userId, active: true }, { __v: 0 }).exec(
+      (err, data) => {
+        if (err) res.send(err);
+        const returnedData = { data };
+        const result = { ...returnedData };
+        res.json({
+          status: 1,
+          message: "Lấy dữ liệu user thành công",
+          ...result,
+        });
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    res.json({
+      status: 0,
+      message: "Lấy dữ liệu user thất bại",
+    });
+  }
+};
+
+module.exports.getAllPhotos = async (req, res) => {
+  const userId = req.user._id;
+  try {
+    const userData = await User.findById({ _id: userId }, { __v: 0 });
+    const following_list = userData.following_list.toString();
+    const follow = [];
+    follow.push(following_list, userId);
+    console.log(follow)
+    Post.find({ user_id: follow, active: true }, { __v: 0 }).exec(
+      (err, data) => {
+        if (err) res.jon(err);
+        const returnedData = { data };
+        const result = { ...returnedData };
+        res.json({
+          status: 1,
+          message: "Lấy dữ liệu bài viết thành công",
+          ...result,
+        });
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    res.json({
+      status: 0,
+      message: "Lấy dữ liệu bài viết thất bại",
+    });
+  }
+};
+
 module.exports.deletePhoto = async (req, res) => {
-	try {
-		const { photo } = req.body;
-		if (!photo) {
-			res.json({
-				status: 0,
-				message: "Thiếu dữ liệu",
-			});
-			return;
-		}
-		const user = await User.findById(req.user._id);
-		if (!user) {
-			res.json({
-				status: 0,
-				message: "Không tìm thấy người dùng",
-			});
-			return;
-		}
-		const urls = [...user.photos];
-		const index = urls.findIndex((url) => url === photo);
-		if (index !== -1) {
-			urls.splice(index, 1);
-			const postData = {
-				photos: urls,
-			};
-			const result = await User.findByIdAndUpdate(
-				req.user._id,
-				postData,
-				{ new: true }
-			);
-			const returnedUser = { ...result._doc };
-			delete returnedUser.password;
-			return res.json({
-				status: 1,
-				message: "Xóa ảnh thành công",
-				data: returnedUser,
-			});
-		}
-		return res.json({
-			status: 0,
-			message: "Không tìm thấy ảnh",
-		});
-	} catch (error) {
-		res.json({
-			status: 0,
-			message: "Xóa ảnh thất bại",
-		});
-	}
+  try {
+    const { photo } = req.body;
+    if (!photo) {
+      res.json({
+        status: 0,
+        message: "Thiếu dữ liệu",
+      });
+      return;
+    }
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      res.json({
+        status: 0,
+        message: "Không tìm thấy người dùng",
+      });
+      return;
+    }
+    const urls = [...user.photos];
+    const index = urls.findIndex((url) => url === photo);
+    if (index !== -1) {
+      urls.splice(index, 1);
+      const postData = {
+        photos: urls,
+      };
+      const result = await User.findByIdAndUpdate(req.user._id, postData, {
+        new: true,
+      });
+      const returnedUser = { ...result._doc };
+      delete returnedUser.password;
+      return res.json({
+        status: 1,
+        message: "Xóa ảnh thành công",
+        data: returnedUser,
+      });
+    }
+    return res.json({
+      status: 0,
+      message: "Không tìm thấy ảnh",
+    });
+  } catch (error) {
+    res.json({
+      status: 0,
+      message: "Xóa ảnh thất bại",
+    });
+  }
 };
