@@ -14,27 +14,19 @@ const userSchema = new mongoose.Schema({
 		default: true,
 	},
 	avatar: String,
-	create_at: Date,
+	create_at: String,
 	role: {
 		type: String,
 		default: "member",
 	},
-	follower_list: [
-		{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "Follower",
-		},
-	],
-	following_list: [
-		{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "Following",
-		},
-	],
+	follower_list: Array,
+	following_list: Array,
+	matching_list: Array,
 	address: String,
 	gender: Number,
 	email: String,
 	phone: String,
+	description: String,
 });
 
 const User = mongoose.model("User", userSchema);

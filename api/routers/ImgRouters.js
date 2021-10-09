@@ -8,6 +8,8 @@ router.post("/upload-photos",middleware.verifyToken, UploadPhoto.uploadPhoto);
 
 router.get("/photo-user",middleware.verifyToken, UploadPhoto.getUserPhotos);
 
+router.get("/photo-targetuser",middleware.verifyToken, UploadPhoto.getTargetUserPhotos);
+
 router.get("/",middleware.verifyToken, UploadPhoto.getAllPhotos);
 
 router.post('/upload-avatar', middleware.verifyToken, UploadPhoto.uploadAvatar);

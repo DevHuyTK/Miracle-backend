@@ -46,9 +46,14 @@ module.exports.uploadPhoto = async (req, res) => {
       resImages.push(photo_name);
     }
 
+    const user = await User.findById(req.user._id);
+    delete user.password;
     const postData = new Post({
       title,
-      user_id: req.user._id.toString(),
+      user_id: user._id.toString(),
+      username: user.username,
+      full_name: user.full_name,
+      avatar: user.avatar,
       photos: resImages,
       created_at: new Date(),
     });
@@ -76,7 +81,6 @@ module.exports.uploadAvatar = async (req, res) => {
     let avatar = `${Date.now()}_` + images.name.replace(/\s/g, "");
 
     let path = "./public/images/" + avatar;
-    var currentDate = moment().format("DD-MM-YYYY");
     if (images) {
       const postData = {
         avatar: avatar,
@@ -117,7 +121,31 @@ module.exports.uploadAvatar = async (req, res) => {
 module.exports.getUserPhotos = (req, res) => {
   const userId = req.user._id;
   try {
-    Post.find({ user_id: userId, active: true }, { __v: 0 }).exec(
+    Post.find({ user_id: userId, active: true }, { __v: 0 }).sort({created_at: 'desc'}).exec(
+      (err, data) => {
+        if (err) res.send(err);
+        const returnedData = { data };
+        const result = { ...returnedData };
+        res.json({
+          status: 1,
+          message: "Lấy dữ liệu user thành công",
+          ...result,
+        });
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    res.json({
+      status: 0,
+      message: "Lấy dữ liệu user thất bại",
+    });
+  }
+};
+
+module.exports.getTargetUserPhotos = (req, res) => {
+  const userId = req.query.userId;
+  try {
+    Post.find({ user_id: userId, active: true }, { __v: 0 }).sort({created_at: 'desc'}).exec(
       (err, data) => {
         if (err) res.send(err);
         const returnedData = { data };
@@ -141,16 +169,21 @@ module.exports.getUserPhotos = (req, res) => {
 module.exports.getAllPhotos = async (req, res) => {
   const userId = req.user._id;
   try {
+    // const following_list = userData.following_list.toString();
+    const followID = [];
     const userData = await User.findById({ _id: userId }, { __v: 0 });
-    const following_list = userData.following_list.toString();
-    const follow = [];
-    follow.push(following_list, userId);
-    console.log(follow)
-    Post.find({ user_id: follow, active: true }, { __v: 0 }).exec(
+
+    const follower = userData.following_list;
+    follower.map((element) => {
+      followID.push(element.user_id.toString());
+    });
+    followID.push(userId);
+
+    Post.find({ user_id: followID, active: true }, { __v: 0 }).sort({created_at: 'desc'}).exec(
       (err, data) => {
-        if (err) res.jon(err);
-        const returnedData = { data };
-        const result = { ...returnedData };
+        if (err) res.json(err);
+        const returnData = { data };
+        const result = { ...returnData };
         res.json({
           status: 1,
           message: "Lấy dữ liệu bài viết thành công",
