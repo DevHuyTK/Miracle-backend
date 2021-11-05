@@ -18,5 +18,7 @@ router.put('/update', middleware.verifyToken, UserController.updateUser)
 
 router.post('/change-password', middleware.verifyToken, UserController.changePassword)
 
+router.post('/upload-avatar', middleware.verifyToken, UserController.uploadAvatar);
+
 
 module.exports = router;

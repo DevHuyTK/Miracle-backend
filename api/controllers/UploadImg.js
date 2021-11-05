@@ -5,7 +5,7 @@ const moment = require("moment");
 //UPLOAD IMAGES INTO SERVER
 module.exports.uploadPhoto = async (req, res) => {
   try {
-    const photos = req.files.photo;
+    const photos = req.files.photos;
     const title = req.body.title;
     if (!title) {
       return res.json({
@@ -74,49 +74,6 @@ module.exports.uploadPhoto = async (req, res) => {
   }
 };
 
-//UPLOAD AVATAR
-module.exports.uploadAvatar = async (req, res) => {
-  try {
-    const images = req.files.avatar;
-    let avatar = `${Date.now()}_` + images.name.replace(/\s/g, "");
-
-    let path = "./public/images/" + avatar;
-    if (images) {
-      const postData = {
-        avatar: avatar,
-        create_at: Date.now(),
-      };
-      const result = await User.findByIdAndUpdate(req.user._id, postData, {
-        new: true,
-      });
-      const returnedUser = { ...result._doc };
-      delete returnedUser.password;
-      res.json({
-        status: 1,
-        message: "Cập nhật ảnh đại diện thành công",
-        data: {
-          ...returnedUser,
-          ...postData,
-        },
-      });
-      images.mv(path, (err) => {
-        if (err) {
-          return res.json(err);
-        }
-      });
-    } else {
-      res.json({
-        status: 0,
-        message: "Cập nhật ảnh đại diện thất bại",
-      });
-    }
-  } catch (err) {
-    res.json({
-      status: 0,
-      message: "Cập nhật ảnh đại diện thất bại",
-    });
-  }
-};
 
 module.exports.getUserPhotos = (req, res) => {
   const userId = req.user._id;
