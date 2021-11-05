@@ -8,9 +8,9 @@ router.post("/upload-photos",middleware.verifyToken, UploadPhoto.uploadPhoto);
 
 router.get("/photo-user",middleware.verifyToken, UploadPhoto.getUserPhotos);
 
-router.get("/",middleware.verifyToken, UploadPhoto.getAllPhotos);
+router.get("/photo-targetuser",middleware.verifyToken, UploadPhoto.getTargetUserPhotos);
 
-router.post('/upload-avatar', middleware.verifyToken, UploadPhoto.uploadAvatar);
+router.get("/",middleware.verifyToken, UploadPhoto.getAllPhotos);
 
 router.delete('/delete-photo', middleware.verifyToken, UploadPhoto.deletePhoto);
 
