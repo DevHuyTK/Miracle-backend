@@ -346,14 +346,6 @@ io.on("connection", async (socket) => {
 			return;
 		}
 
-		const like = {
-			user_id: verifiedUser._id,
-			username: verifiedUser.username,
-			full_name: verifiedUser.full_name,
-			avatar: verifiedUser.avatar,
-			create_at: Date.now(),
-		};
-
 		await Post.findByIdAndUpdate(verifiedPosts._id, {
 			like_count: [
 				...posts.like_count.filter(
