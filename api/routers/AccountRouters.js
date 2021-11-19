@@ -4,7 +4,7 @@ const middleware = require('../middlewares/verifyToken');
 
 const router = express.Router();
 
-router.get('/', middleware.verifyToken, UserController.index);
+router.get('/matching_list', middleware.verifyToken, UserController.matching_list);
 
 router.get('/get-users', UserController.getUsers);
 

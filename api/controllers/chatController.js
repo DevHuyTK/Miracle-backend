@@ -2,8 +2,8 @@ const Chat = require('../models/ChatModel');
 
 module.exports.index = async (req, res) => {
   try {
-    const userId = req.user._id.toString();
-    const targetUserId = req.query.userId;
+    const userId = req.user._id;
+    const targetUserId = req.params.userId;
     if (!targetUserId) {
       return res.json({
         status: 0,
@@ -27,6 +27,7 @@ module.exports.index = async (req, res) => {
     });
   }
 }
+
 module.exports.deleteAll = async (req, res) => {
   try {
     await Chat.deleteMany({});

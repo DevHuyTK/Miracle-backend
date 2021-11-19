@@ -3,7 +3,7 @@ const Chat = require("../models/ChatModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-module.exports.index = async (req, res) => {
+module.exports.matching_list = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         if (!user) {
@@ -14,7 +14,7 @@ module.exports.index = async (req, res) => {
         }
         const returnedMatchingList = await Promise.all(
             [...user.matching_list].map(async (item) => {
-                const unique = [user._id.toString(), item._id.toString()].sort(
+                const unique = [user._id, item._id].sort(
                     (a, b) => (a < b ? -1 : 1)
                 );
                 const roomId = `${unique[0]}-${unique[1]}`;
