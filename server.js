@@ -142,7 +142,6 @@ io.on("connection", async (socket) => {
 						{},
 						{ sort: { created_at: -1 } }
 					);
-					console.log(message);
 					if (message) {
 						return {
 							...item,
@@ -307,7 +306,7 @@ io.on("connection", async (socket) => {
 			create_at: Date.now(),
 		};
 
-		await User.findByIdAndUpdate(verifiedPosts._id, {
+		await Post.findByIdAndUpdate(verifiedPosts._id, {
 			like_count: [...posts.like_count, like],
 		});
 		socket.emit("like-post-response", {
@@ -355,7 +354,7 @@ io.on("connection", async (socket) => {
 			create_at: Date.now(),
 		};
 
-		await User.findByIdAndUpdate(verifiedPosts._id, {
+		await Post.findByIdAndUpdate(verifiedPosts._id, {
 			like_count: [
 				...posts.like_count.filter(
 					(item) => item.user_id !== verifiedUser._id
