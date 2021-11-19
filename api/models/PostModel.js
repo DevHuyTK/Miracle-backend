@@ -14,7 +14,7 @@ const PostSchema = new mongoose.Schema({
       ref: "Like",
     },
   ],
-  comment: [
+  comments: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Comment",

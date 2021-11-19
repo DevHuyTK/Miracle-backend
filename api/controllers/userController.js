@@ -328,7 +328,6 @@ module.exports.changePassword = async (req, res) => {
 module.exports.uploadAvatar = async (req, res) => {
     try {
         const images = req.files.avatar;
-        console.log(req.files);
         let avatar = `${Date.now()}_` + images.name.replace(/\s/g, "");
 
         let path = "./public/images/" + avatar;

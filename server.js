@@ -13,6 +13,9 @@ const photoRoute = require("./api/routers/ImgRouters.js");
 const chatRoute = require("./api/routers/ChatRouters.js");
 const User = require("./api/models/UserModel.js");
 const Chat = require("./api/models/ChatModel.js");
+const Post = require("./api/models/PostModel.js");
+const Comment = require("./api/models/CommentModel.js");
+const Like = require("./api/models/LikeModel.js");
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -214,6 +217,162 @@ io.on("connection", async (socket) => {
 		});
 	});
 
+	//COMMENT POST
+	socket.on("user-comment", async ({ token, postId, comment }) => {
+		if (!token) {
+			socket.emit("user-comment-response", {
+				status: 0,
+				message: "Thiếu token",
+			});
+			return;
+		}
+		const verified = jwt.verify(
+			token,
+			process.env.TOKEN_SECRET || "TOKEN_SECRET"
+		);
+		const posts = await Post.findById(postId);
+		const verifiedPosts = { ...posts._doc };
+		const user = await User.findById(verified._id);
+		const verifiedUser = { ...user._doc };
+		delete verifiedUser.password;
+
+		if (!posts) {
+			socket.emit("user-comment-response", {
+				status: 0,
+				message: "Không tìm thấy bài viết!",
+			});
+			return;
+		}
+		const Comment = {
+			user_id: verifiedUser._id,
+			username: verifiedUser.username,
+			full_name: verifiedUser.full_name,
+			comment: comment,
+			avatar: verifiedUser.avatar,
+			create_at: Date.now(),
+		};
+
+		const comment1 = new Comment({
+			user_id: verifiedUser._id,
+			username: verifiedUser.username,
+			full_name: verifiedUser.full_name,
+			comment: comment,
+			avatar: verifiedUser.avatar,
+			create_at: Date.now(),
+		});
+		await comment1.save();
+
+		await Post.findByIdAndUpdate(verifiedPosts._id, {
+			comments: [...user.comments, Comment],
+		});
+
+		socket.broadcast.emit("user-comment-response", {
+			status: 1,
+			message: "Có tin bình luận mới",
+			data: Comment,
+		});
+	});
+
+	//LIKE POST
+	socket.on("like-post", async ({ token, postId }) => {
+		if (!token) {
+			socket.emit("like-post-response", {
+				status: 0,
+				message: "Thiếu token",
+			});
+			return;
+		}
+		const verified = jwt.verify(
+			token,
+			process.env.TOKEN_SECRET || "TOKEN_SECRET"
+		);
+		const user = await User.findById(verified._id);
+		const posts = await Post.findById(postId);
+		const verifiedUser = { ...user._doc };
+		const verifiedPosts = { ...posts._doc };
+		delete verifiedUser.password;
+		if (!posts) {
+			socket.emit("like-post-response", {
+				status: 0,
+				message: "Không tìm thấy bài viết!",
+			});
+			return;
+		}
+
+		const like = {
+			user_id: verifiedUser._id,
+			username: verifiedUser.username,
+			full_name: verifiedUser.full_name,
+			avatar: verifiedUser.avatar,
+			create_at: Date.now(),
+		};
+
+		await User.findByIdAndUpdate(verifiedPosts._id, {
+			like_count: [...posts.like_count, like],
+		});
+		socket.emit("like-post-response", {
+			status: 1,
+			message: `Thích bài viết thành công`,
+		});
+		socket.broadcast.emit("like-post-response", {
+			status: 1,
+			message: `${verifiedUser.full_name} đã thích bài viết của bạn`,
+			post_id: postId,
+		});
+	});
+
+	//UNLIKE POST
+	socket.on("unlike-post", async ({ token, postId }) => {
+		if (!token) {
+			socket.emit("unlike-post-response", {
+				status: 0,
+				message: "Thiếu token",
+			});
+			return;
+		}
+		const verified = jwt.verify(
+			token,
+			process.env.TOKEN_SECRET || "TOKEN_SECRET"
+		);
+		const user = await User.findById(verified._id);
+		const posts = await Post.findById(postId);
+		const verifiedUser = { ...user._doc };
+		const verifiedPosts = { ...posts._doc };
+		delete verifiedUser.password;
+		if (!posts) {
+			socket.emit("unlike-post-response", {
+				status: 0,
+				message: "Không tìm thấy bài viết!",
+			});
+			return;
+		}
+
+		const like = {
+			user_id: verifiedUser._id,
+			username: verifiedUser.username,
+			full_name: verifiedUser.full_name,
+			avatar: verifiedUser.avatar,
+			create_at: Date.now(),
+		};
+
+		await User.findByIdAndUpdate(verifiedPosts._id, {
+			like_count: [
+				...posts.like_count.filter(
+					(item) => item.user_id !== verifiedUser._id
+				),
+			],
+		});
+		socket.emit("unlike-post-response", {
+			status: 1,
+			message: `Bỏ Thích bài viết thành công`,
+		});
+		socket.broadcast.emit("unlike-post-response", {
+			status: 1,
+			message: `${verifiedUser.full_name} đã bỏ thích bài viết của bạn`,
+			post_id: postId,
+		});
+	});
+
 	//follow
 	socket.on("follow-user", async ({ token, userId }) => {
 		if (!token) {
@@ -299,12 +458,20 @@ io.on("connection", async (socket) => {
 			});
 			return;
 		}
-		
+
 		await User.findByIdAndUpdate(verified._id, {
-			following_list: [...user.following_list.filter(item => item.user_id !== userId)],
+			following_list: [
+				...user.following_list.filter(
+					(item) => item.user_id !== userId
+				),
+			],
 		});
 		await User.findByIdAndUpdate(verifiedTargetUser._id, {
-			follower_list: [...targetUser.follower_list.filter(item => item.user_id !== verified._id)],
+			follower_list: [
+				...targetUser.follower_list.filter(
+					(item) => item.user_id !== verified._id
+				),
+			],
 		});
 		socket.emit("unfollow-user-response", {
 			status: 1,
