@@ -11,6 +11,7 @@ const path = require("path");
 const userRoute = require("./api/routers/AccountRouters.js");
 const photoRoute = require("./api/routers/ImgRouters.js");
 const chatRoute = require("./api/routers/ChatRouters.js");
+const postRoute = require("./api/routers/PostRouters.js");
 const User = require("./api/models/UserModel.js");
 const Chat = require("./api/models/ChatModel.js");
 const Post = require("./api/models/PostModel.js");
@@ -66,6 +67,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/user", userRoute);
 app.use("/api/chat", chatRoute);
 app.use("/api/photo", photoRoute);
+app.use("/api/post", postRoute);
 
 //SETUP Socket-io
 io.on("connection", async (socket) => {
@@ -251,15 +253,15 @@ io.on("connection", async (socket) => {
 			create_at: Date.now(),
 		};
 
-		const comment1 = new Comment({
-			user_id: verifiedUser._id,
-			username: verifiedUser.username,
-			full_name: verifiedUser.full_name,
-			comment: comment,
-			avatar: verifiedUser.avatar,
-			create_at: Date.now(),
-		});
-		await comment1.save();
+		// const comment1 = new Comment({
+		// 	user_id: verifiedUser._id,
+		// 	username: verifiedUser.username,
+		// 	full_name: verifiedUser.full_name,
+		// 	comment: comment,
+		// 	avatar: verifiedUser.avatar,
+		// 	create_at: Date.now(),
+		// });
+		// await comment1.save();
 
 		await Post.findByIdAndUpdate(verifiedPosts._id, {
 			comments: [...user.comments, Comment],

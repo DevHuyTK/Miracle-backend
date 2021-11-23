@@ -77,8 +77,12 @@ module.exports.uploadPhoto = async (req, res) => {
 
 module.exports.getUserPhotos = (req, res) => {
   const userId = req.user._id;
+  const limit = parseInt(req.query.limit);
+  const page = parseInt(req.query.page);
+  const skip = (page - 1) * limit;
+  
   try {
-    Post.find({ user_id: userId, active: true }, { __v: 0 }).sort({created_at: 'desc'}).exec(
+    Post.find({ user_id: userId, active: true }, { __v: 0 }).skip(skip).limit(limit).sort({created_at: 'desc'}).exec(
       (err, data) => {
         if (err) res.send(err);
         const returnedData = { data };
@@ -101,8 +105,11 @@ module.exports.getUserPhotos = (req, res) => {
 
 module.exports.getTargetUserPhotos = (req, res) => {
   const userId = req.query.userId;
+  const limit = parseInt(req.query.limit);
+  const page = parseInt(req.query.page);
+  const skip = (page - 1) * limit;
   try {
-    Post.find({ user_id: userId, active: true }, { __v: 0 }).sort({created_at: 'desc'}).exec(
+    Post.find({ user_id: userId, active: true }, { __v: 0 }).skip(skip).limit(limit).sort({created_at: 'desc'}).exec(
       (err, data) => {
         if (err) res.send(err);
         const returnedData = { data };
@@ -125,8 +132,10 @@ module.exports.getTargetUserPhotos = (req, res) => {
 
 module.exports.getAllPhotos = async (req, res) => {
   const userId = req.user._id;
+  const limit = parseInt(req.query.limit);
+  const page = parseInt(req.query.page);
+  const skip = (page - 1) * limit;
   try {
-    // const following_list = userData.following_list.toString();
     const followID = [];
     const userData = await User.findById({ _id: userId }, { __v: 0 });
 
@@ -136,7 +145,7 @@ module.exports.getAllPhotos = async (req, res) => {
     });
     followID.push(userId);
 
-    Post.find({ user_id: followID, active: true }, { __v: 0 }).sort({created_at: 'desc'}).exec(
+    Post.find({ user_id: followID, active: true }, { __v: 0 }).skip(skip).limit(limit).sort({created_at: 'desc'}).exec(
       (err, data) => {
         if (err) res.json(err);
         const returnData = { data };
