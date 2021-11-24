@@ -11,6 +11,7 @@ const path = require("path");
 const userRoute = require("./api/routers/AccountRouters.js");
 const photoRoute = require("./api/routers/ImgRouters.js");
 const chatRoute = require("./api/routers/ChatRouters.js");
+const postRoute = require("./api/routers/PostRouters.js");
 const User = require("./api/models/UserModel.js");
 const Chat = require("./api/models/ChatModel.js");
 const Post = require("./api/models/PostModel.js");
@@ -66,6 +67,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/user", userRoute);
 app.use("/api/chat", chatRoute);
 app.use("/api/photo", photoRoute);
+app.use("/api/post", postRoute);
 
 //SETUP Socket-io
 io.on("connection", async (socket) => {
@@ -235,6 +237,10 @@ io.on("connection", async (socket) => {
 		const verifiedUser = { ...user._doc };
 		delete verifiedUser.password;
 
+		const userPost = User.findById(verifiedPosts.user_id);
+		const verifiedUserPost = { ...userPost._doc };
+		delete verifiedUserPost.password;
+
 		if (!posts) {
 			socket.emit("user-comment-response", {
 				status: 0,
@@ -246,28 +252,28 @@ io.on("connection", async (socket) => {
 			user_id: verifiedUser._id,
 			username: verifiedUser.username,
 			full_name: verifiedUser.full_name,
-			comment: comment,
+			comment,
 			avatar: verifiedUser.avatar,
 			create_at: Date.now(),
 		};
 
-		const comment1 = new Comment({
-			user_id: verifiedUser._id,
-			username: verifiedUser.username,
-			full_name: verifiedUser.full_name,
-			comment: comment,
-			avatar: verifiedUser.avatar,
-			create_at: Date.now(),
-		});
-		await comment1.save();
+		// const comment1 = new Comment({
+		// 	user_id: verifiedUser._id,
+		// 	username: verifiedUser.username,
+		// 	full_name: verifiedUser.full_name,
+		// 	comment: comment,
+		// 	avatar: verifiedUser.avatar,
+		// 	create_at: Date.now(),
+		// });
+		// await comment1.save();
 
 		await Post.findByIdAndUpdate(verifiedPosts._id, {
-			comments: [...user.comments, Comment],
+			comments: [...posts.comments, Comment],
 		});
 
 		socket.broadcast.emit("user-comment-response", {
 			status: 1,
-			message: "Có tin bình luận mới",
+			message: `${verifiedUser.full_name} đã bình luận bài viết của ${verifiedUserPost.full_name}`,
 			data: Comment,
 		});
 	});
