@@ -12,7 +12,7 @@ module.exports.getPostComments = async (req, res) => {
 				res.json({
 					status: 1,
 					message: "Lấy dữ liệu bài viết thành công",
-					...result.comments,
+					...result,
 				});
 			}
 		);

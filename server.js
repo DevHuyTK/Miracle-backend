@@ -237,6 +237,10 @@ io.on("connection", async (socket) => {
 		const verifiedUser = { ...user._doc };
 		delete verifiedUser.password;
 
+		const userPost = User.findById(verifiedPosts.user_id);
+		const verifiedUserPost = { ...userPost._doc };
+		delete verifiedUserPost.password;
+
 		if (!posts) {
 			socket.emit("user-comment-response", {
 				status: 0,
@@ -248,7 +252,7 @@ io.on("connection", async (socket) => {
 			user_id: verifiedUser._id,
 			username: verifiedUser.username,
 			full_name: verifiedUser.full_name,
-			comment: comment,
+			comment,
 			avatar: verifiedUser.avatar,
 			create_at: Date.now(),
 		};
@@ -264,12 +268,12 @@ io.on("connection", async (socket) => {
 		// await comment1.save();
 
 		await Post.findByIdAndUpdate(verifiedPosts._id, {
-			comments: [...user.comments, Comment],
+			comments: [...posts.comments, Comment],
 		});
 
 		socket.broadcast.emit("user-comment-response", {
 			status: 1,
-			message: "Có tin bình luận mới",
+			message: `${verifiedUser.full_name} đã bình luận bài viết của ${verifiedUserPost.full_name}`,
 			data: Comment,
 		});
 	});
