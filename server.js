@@ -412,7 +412,7 @@ io.on("connection", async (socket) => {
 			create_at: Date.now(),
 		};
 
-		await User.findByIdAndUpdate(verified._id, {
+		await User.findByIdAndUpdate(verifiedUser._id, {
 			following_list: [...user.following_list, following],
 		});
 		await User.findByIdAndUpdate(verifiedTargetUser._id, {
@@ -456,17 +456,17 @@ io.on("connection", async (socket) => {
 			return;
 		}
 
-		await User.findByIdAndUpdate(verified._id, {
+		await User.findByIdAndUpdate(verifiedUser._id, {
 			following_list: [
 				...user.following_list.filter(
-					(item) => item.user_id !== userId
+					(item) => item.username !== verifiedTargetUser.username
 				),
 			],
 		});
 		await User.findByIdAndUpdate(verifiedTargetUser._id, {
 			follower_list: [
 				...targetUser.follower_list.filter(
-					(item) => item.user_id !== verified._id
+					(item) => item.username !== verifiedUser.username
 				),
 			],
 		});
